@@ -49,10 +49,10 @@ namespace MyGame.Scripts.Game.GameRoot
                 return;
             }
 
-           // if (sceneName == Scenes.MAIN_MENU)
-            //{
-            //    _coroutines.StartCoroutine(LoadAndStartMainMenu());
-            //}
+           if (sceneName == Scenes.MAIN_MENU)
+            {
+               _coroutines.StartCoroutine(LoadAndStartMainMenu());
+            }
 
             if (sceneName != Scenes.BOOT)
             {
@@ -71,9 +71,33 @@ namespace MyGame.Scripts.Game.GameRoot
             yield return new WaitForSeconds(1);
 
             var sceneEntryPoint = Object.FindAnyObjectByType<GameplayEntryPoint>();
-            sceneEntryPoint.Run();
+            sceneEntryPoint.Run(_uiRoot);
+
+            sceneEntryPoint.GoToMainMenuSceneRequested += () =>
+            {
+                _coroutines.StartCoroutine(LoadAndStartMainMenu());
+            };
 
             
+            _uiRoot.HideLoadingScreen();
+        }
+        private IEnumerator LoadAndStartMainMenu()
+        {
+            _uiRoot.ShowLoadingScreen();
+            yield return LoadScene(Scenes.BOOT);
+            yield return LoadScene(Scenes.MAIN_MENU);
+
+            yield return new WaitForSeconds(1);
+
+            var sceneEntryPoint = Object.FindAnyObjectByType<MainMenuEntryPoint>();
+            sceneEntryPoint.Run(_uiRoot);
+
+            sceneEntryPoint.GoToGameplaySceneRequested += () =>
+            {
+                _coroutines.StartCoroutine(LoadAndStartGameplay());
+            };
+
+
             _uiRoot.HideLoadingScreen();
         }
 

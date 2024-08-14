@@ -1,5 +1,7 @@
 ﻿//using myGame.Scripts.Game.Gameplay.Root.View;
 //using myGame.Scripts.Game.MainMenu.Root;
+using MyGame.Scripts.Game.GameRoot;
+using System;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -8,11 +10,18 @@ namespace myGame.Scripts.Game.Gameplay.Root
     public class GameplayEntryPoint : MonoBehaviour
     {
         [SerializeField] private GameObject _sceneRootBinder;
+        [SerializeField] private UIGameplayRootBinder _sceneUIRootPrefab;
+        public event Action GoToMainMenuSceneRequested;
 
-
-        public void Run()
+        public void Run(UIRootView uiRoot)
         {
-            Debug.Log("Gameplay scene loaded");
+            var uiScene = Instantiate(_sceneUIRootPrefab);
+            uiRoot.AttachSceneUI(uiScene.gameObject);
+
+            uiScene.GoToMainMenuButtonClicked += () =>
+            {
+                GoToMainMenuSceneRequested?.Invoke();
+            };
         }
 
         /*public Observable<GameplayExitParams> Run(DIContainer gameplayContainer, GameplayEnterParams enterParams)
